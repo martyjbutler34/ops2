@@ -1,0 +1,28 @@
+step "Deploy to NGINX" {
+    properties = {
+        Octopus.Action.TargetRoles = "web-server-nginx"
+    }
+
+    action {
+        action_type = "Octopus.Nginx"
+        properties = {
+            Octopus.Action.EnabledFeatures = ",Octopus.Features.Nginx"
+            Octopus.Action.Nginx.Server.Bindings = "[{\"protocol\":\"http\",\"port\":\"80\",\"ipAddress\":\"*\",\"certificateLocation\":null,\"certificateKeyLocation\":null,\"securityProtocols\":null,\"enabled\":true}]"
+            Octopus.Action.Nginx.Server.ConfigName = "#{Octopus.Action.Package.PackageId}.#{Octopus.Environment.Name}#{if Octopus.Deployment.Tenant.Name}.#{Octopus.Deployment.Tenant.Name}#{/if}"
+            Octopus.Action.Nginx.Server.HostName = "ops-nginx-site"
+            Octopus.Action.Package.DownloadOnTentacle = "False"
+            Octopus.Action.Package.FeedId = "Octopus Server (built-in)"
+            Octopus.Action.Package.PackageId = "hello-world"
+        }
+        worker_pool_variable = ""
+
+        packages {
+            acquisition_location = "Server"
+            feed = "Octopus Server (built-in)"
+            package_id = "hello-world"
+            properties = {
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
